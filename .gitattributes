@@ -1,0 +1,3 @@
+# 這個 repo 以 LF 為正本。
+# ★ 混用 CRLF/LF 會讓「用文字 anchor 打補丁」一直對不上(彈珠檯/逐鹿三國都踩過)。
+* text=auto eol=lf

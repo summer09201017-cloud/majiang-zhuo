@@ -1,0 +1,5 @@
+scripts/
+*.md
+*.txt
+run.bat
+.gitattributes

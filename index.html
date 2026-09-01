@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<meta name="theme-color" content="#0a3520">
+<!-- 📱 加到主畫面後全螢幕(沒有地址欄,牌桌大一截);iOS 認 apple- 那個舊的 -->
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<meta name="apple-mobile-web-app-title" content="麻將桌">
+<title>麻將桌 · 台灣 16 張</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon.svg">
+<!-- ⚠ iOS 的主畫面圖示**不吃 SVG** ⇒ 一定要給 PNG,否則加到主畫面會變成一張網頁縮圖 -->
+<link rel="apple-touch-icon" sizes="180x180" href="icon-180.png">
+<style>
+  html, body { margin: 0; height: 100%; background: #0a3520; overflow: hidden;
+    -webkit-user-select: none; user-select: none; -webkit-tap-highlight-color: transparent }
+  canvas { display: block; position: fixed; inset: 0 }
+  /* 📱 直向蓋版提示(最小版;完整的「手勢中自動進全螢幕+鎖 landscape」三件組在 M5)。
+     16 張手牌直向塞不下 —— 與其讓人看到擠爛的牌桌,不如直接請他轉橫。 */
+  #rotate { display: none; position: fixed; inset: 0; z-index: 9; background: #0a3520;
+    color: #eafaf0; font: 600 20px/1.7 system-ui, sans-serif; text-align: center;
+    align-items: center; justify-content: center; padding: 24px }
+  @media (orientation: portrait) { #rotate { display: flex } canvas { visibility: hidden } }
+</style>
+</head>
+<body>
+<canvas id="cv"></canvas>
+<div id="rotate">🀄<br>請把手機轉成<b>橫向</b><br><span style="font-size:15px;opacity:.7">16 張手牌需要橫的畫面</span></div>
+<script src="src/config.js"></script>
+<script src="src/tiles.js"></script>
+<script src="src/rules/hu.js"></script>
+<script src="src/rules/shanten.js"></script>
+<script src="src/rules/meld.js"></script>
+<script src="src/rules/score.js"></script>
+<script src="src/table.js"></script>
+<script src="src/ai.js"></script>
+<script src="src/confetti.js"></script>
+<script src="src/sfx.js"></script>
+<script src="src/game.js"></script>
+<script src="src/renderer.js"></script>
+<script src="src/input.js"></script>
+<script>
+// SW:localhost 一律 unregister(dev 快取雷,紙牌桌/彈珠檯老規矩);線上才註冊
+if ('serviceWorker' in navigator) {
+  const local = location.hostname === 'localhost' || location.hostname === '127.0.0.1'
+  if (local) navigator.serviceWorker.getRegistrations().then((rs) => rs.forEach((r) => r.unregister()))
+  else addEventListener('load', () => navigator.serviceWorker.register('sw.js'))
+}
+// 📱 強制橫式全螢幕(skill force-landscape-pwa 三件組之三;之一是 manifest 的 orientation、
+//    之二是上面那個直向蓋版提示)。
+// ★ 一定要在**使用者手勢裡**呼叫,而且全部包 try/catch:桌機瀏覽器與 iOS 都可能拒絕,
+//   被拒絕不可以讓遊戲壞掉。⚙ 面板裡另外有一顆手動的。
+function lockLandscape() {
+  try {
+    if (screen.orientation && screen.orientation.lock) screen.orientation.lock('landscape').catch(function () {})
+  } catch (e) {}
+}
+window.goFullscreen = function () {
+  var ok = false
+  try {
+    var el = document.documentElement
+    var rq = el.requestFullscreen || el.webkitRequestFullscreen
+    if (rq && !document.fullscreenElement) {
+      var p = rq.call(el)
+      ok = true
+      if (p && p.then) p.then(lockLandscape, function () {})
+      else lockLandscape()
+    }
+  } catch (e) {}
+  if (!ok) lockLandscape()
+  return ok
+}
+// 只在觸控裝置自動試一次(桌機不要沒問就搶全螢幕);失敗就算了
+try {
+  if (matchMedia('(pointer: coarse)').matches) {
+    addEventListener('pointerdown', function () { window.goFullscreen() }, { once: true })
+  }
+} catch (e) {}
+
+game.boot()
+// 🔬 給 Playwright 驗收用的把手。★ src 裡的 const 宣告**不會**掛上 window
+//    (0901 第一次驗收就在 waitForFunction(() => window.renderer) 卡住 8 秒 —— 那是驗法的錯,不是遊戲的錯)。
+window.__game = game
+window.__renderer = renderer
+</script>
+</body>
+</html>
