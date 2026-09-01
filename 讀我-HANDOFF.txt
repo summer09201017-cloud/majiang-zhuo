@@ -7,8 +7,10 @@
   (沒有 npm 套件、沒有 bundler),改完檔案本身就是產物。
 
   本機工作副本: C:\Users\HFP\Desktop\majiang-zhuo
-  GitHub      : 尚未建立
-  線上        : 尚未部署(M5 才上 Cloudflare Pages)
+  GitHub      : https://github.com/summer09201017-cloud/majiang-zhuo (公開)
+  線上正式站  : https://majiang-zhuo.pages.dev   ★ 唯一正式網址(Cloudflare Pages)
+  重新部署    : npx wrangler pages deploy . --project-name=majiang-zhuo --branch=main --commit-dirty=true
+  線上驗收    : LIVE_URL=https://majiang-zhuo.pages.dev/ node scripts/verify-ui.mjs
 
   ⚠ 這不是教會遊戲系列的一員(同紙牌桌 zhipai-zhuo / 彈珠檯 dianzhu-tai 慣例):
     個人/家庭懷舊系,不進大廳、不進 sites.json、不接統計 beacon、不放經文、不做分齡。
@@ -31,12 +33,13 @@
   3. PNG 圖示(icon-180/192/512,scripts/make-icons.mjs 從 icon.svg 產;iOS 不吃 SVG)。
   4. ★ 存檔續玩:打到一半被切走,回來接著同一局(存牌的 id,讀回來跑守恆保險絲)。
 
-【★★ 待使用者拍板:要不要部署】
-  程式已經可以上線了,但**部署會產生一個公開網址、而且要用你的 Cloudflare 帳號**,
-  所以我沒有自己動。要上的話流程是:
-    git init + 建 GitHub repo + push → /ship-cf(wrangler pages deploy)→ 線上冒煙驗收
-    (`LIVE_URL=https://... node scripts/verify-ui.mjs` 可以直接驗線上)
-  ⚠ 這是個人/家庭懷舊系:**不要**進大廳、不要進 sites.json、不要接統計 beacon。
+【★ 已上線(2026-09-02,使用者拍板後才做)】
+  https://majiang-zhuo.pages.dev —— 對**線上**跑完整 verify-ui:39/39 全綠。
+  GitHub repo 公開:https://github.com/summer09201017-cloud/majiang-zhuo
+  ⚠ 這是個人/家庭懷舊系:**沒有**進大廳、**沒有**進 sites.json、**沒有**接統計 beacon。
+    以後也不要接 —— 跟紙牌桌 zhipai-zhuo / 彈珠檯 dianzhu-tai 同一個規矩。
+  ⚠ 改完要重新部署,不然線上還是舊版(整個艦隊最常犯的錯):
+    改 src/config.js 的 VERSION ⇒ sw.js 的 CACHE 也要一起 bump(smoke 在守)⇒ 再 deploy。
 
 【已完成:M4 手感】驗法 = smoke 221/221、verify-ui 33/33(連跑 8 次全綠)
   - 吃/碰/槓/胡/自摸/摸牌 各有自己的聲音(零音檔,WebAudio 合成)
@@ -108,8 +111,8 @@
 
 【還沒有的東西 —— 不要以為壞掉了,是還沒做】
   - 老手在**點數**上還贏不過普通(見那段誠實記帳,不是 bug)
-  - **還沒部署**(見上面「待使用者拍板」)
   - 過水與詐胡罰則沒做(v1 不做)
+  - 老手在點數上還贏不過普通(見那段誠實記帳,不是 bug)
   - 沒有 PNG 圖示、沒有存檔續玩、沒有部署(M5)
   - 過水與詐胡罰則沒做(v1 不做)
 
