@@ -131,6 +131,26 @@ const renderer = {
       let mi = 0
       for (const m of G.melds[s]) for (const t of m.tiles)
         this.img(face(t.k), tilePos(G, 'meld', s, mi++), rot)
+      // ✨ 副露剛成立:最後那一組外圈亮一下(700ms 淡出)。純觀感;算的是同一份 tilePos ⇒ 框一定套在牌上。
+      const fl = game.flash
+      if (fl && fl.seat === s && G.melds[s].length) {
+        const p = Math.min(1, (performance.now() - fl.t0) / fl.dur)
+        const last = G.melds[s][G.melds[s].length - 1]
+        const n = last.tiles.length
+        let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity
+        for (let k = mi - n; k < mi; k++) {
+          const r = tilePos(G, 'meld', s, k)
+          x0 = Math.min(x0, r.x); y0 = Math.min(y0, r.y); x1 = Math.max(x1, r.x + r.w); y1 = Math.max(y1, r.y + r.h)
+        }
+        if (Number.isFinite(x0)) {
+          const c = this.ctx
+          c.save()
+          c.globalAlpha = (1 - p) * 0.95
+          this.rr(x0 - 5, y0 - 5, x1 - x0 + 10, y1 - y0 + 10, 8)
+          c.strokeStyle = '#ffd34d'; c.lineWidth = 4 + (1 - p) * 4; c.stroke()
+          c.restore()
+        }
+      }
       // 花牌區
       for (let i = 0; i < G.flowers[s].length; i++)
         this.img(face(G.flowers[s][i].k), tilePos(G, 'flower', s, i), rot)
@@ -173,7 +193,9 @@ const renderer = {
     }
     if (G.drawn[0]) {
       const r = tilePos(G, 'drawn', 0, 0)
-      const lift = my && game.hover === -1 ? 8 : 0
+      // 🎴 剛摸進來抬一下:260ms 內從 +16px 落回原位(ease-out);hover 的 8px 照舊疊上去。純觀感,tilePos 不動 ⇒ 點得到的位置不變。
+      const la = game.lift ? Math.max(0, 1 - (performance.now() - game.lift.t0) / game.lift.dur) : 0
+      const lift = (my && game.hover === -1 ? 8 : 0) + Math.round(la * la * 16)
       this.img(face(G.drawn[0].k), { x: r.x, y: r.y - lift, w: r.w, h: r.h }, 0)
       if (hs === -1) {                       // 提示建議打的就是剛摸的那張
         this.rr(r.x - 3, r.y - lift - 3, r.w + 6, r.h + 6, 8)

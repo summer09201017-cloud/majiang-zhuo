@@ -1,7 +1,7 @@
 // 麻將桌(majiang-zhuo)— 全域設定。
 // ★ 版號改了,sw.js 的 CACHE 要一起 bump(smoke 在守 —— 紙牌桌/彈珠檯的老規矩直接搬)。
 const CONFIG = {
-  VERSION: 'v0.6.1 · 麻將桌',
+  VERSION: 'v0.7.0 · 麻將桌',
 
   // ★ 鎖橫向(跟紙牌桌相反、跟彈珠檯相同):16 張手牌 + 三家副露 + 牌河,直向 540 寬塞不下。
   LOGICAL_W: 960,

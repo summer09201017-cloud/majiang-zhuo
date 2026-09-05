@@ -13,6 +13,8 @@ const game = {
   last: 0,
   acts: [],        // 這一幀玩家能按的鈕(renderer 畫它、onBtn 依它執行,只有一份)
   fly: null,       // 正在飛向牌河的那張牌(純觀感,不影響任何規則)
+  lift: null,      // 剛摸進來的那張牌「抬一下」(純觀感;0905 roadmap 第 3 條)
+  flash: null,     // 誰家副露剛成立「閃一下」{ seat, t0, dur }(純觀感;同上)
   reduced: false,  // 使用者要求減少動態 ⇒ 不做動畫
 
   boot() {
@@ -64,12 +66,19 @@ const game = {
     const G = this.G
     if (!G) return
     if (this.fly && performance.now() - this.fly.t0 > this.fly.dur) this.fly = null
+    if (this.lift && performance.now() - this.lift.t0 > this.lift.dur) this.lift = null
+    if (this.flash && performance.now() - this.flash.t0 > this.flash.dur) this.flash = null
     if (this.panel) return                                   // 面板開著就暫停
     if (G.phase !== 'play' && G.phase !== 'react') return     // win / washout / over / bug 等按鈕
     this.wait -= dt
     if (this.wait > 0) return
     const d0 = G.discards, m0 = G.melds.map((m) => m.length)
-    if (!stepAuto(G, policyFor(G.opts.level), 0)) return       // 輪到玩家了 ⇒ 等他動
+    const hadDrawn = !!G.drawn[0]
+    if (!stepAuto(G, policyFor(G.opts.level), 0)) {            // 輪到玩家了 ⇒ 等他動
+      // 🎴 剛替玩家摸了一張:抬一下(純觀感;reduced-motion 不做)
+      if (!hadDrawn && G.drawn[0] && !this.reduced) this.lift = { t0: performance.now(), dur: 260 }
+      return
+    }
     if (this.hint && !canDiscardNow(G, 0)) this.hint = null    // 換人了,提示過期
     if (!this.fuse()) return
     this.afterStep(G, d0, m0)
@@ -88,6 +97,7 @@ const game = {
     if (G.phase === 'washout') { SFX.play('lose'); this.wait = 0; return }
     if (grew >= 0) {
       const k = G.melds[grew][G.melds[grew].length - 1].kind
+      if (!this.reduced) this.flash = { seat: grew, t0: performance.now(), dur: 700 }   // ✨ 副露成立閃一下(純觀感)
       SFX.play(k === 'chi' ? 'chi' : k === 'pon' ? 'pon' : 'kan')
       this.wait = PACE.react
       return
