@@ -21,6 +21,15 @@
   node scripts/smoke.mjs       純邏輯驗收
   node scripts/verify-ui.mjs   真瀏覽器驗收(playwright 自己找;找不到回 3 = 跳過)
 
+★★★ 2026-09-05(HFP 機・Fable 5.1・0904-fb)v0.7.0:🎴 摸牌抬起 + ✨ 副露成立閃一下(純觀感,規則零改動;84f4484)★★★
+  由來:roadmap 待做第 3 條(★★ 1h);十二站健檢第 1 層第 9 件,使用者 0905 已真人打完一場才做。基底是 0904-96 同日推的 v0.6.1(接統計三層),pull 後再 bump。
+  game.js:新欄位 lift / flash;tick 在 stepAuto 回「輪到玩家」那一刻若 drawn[0] 由無變有 ⇒ lift={t0,dur:260};afterStep 副露 grew≥0 ⇒ flash={seat,t0,dur:700};
+  兩者跟 fly 一樣在 tick 過期清掉;this.reduced(prefers-reduced-motion)不做。
+  renderer.js:drawMyHand 剛摸那張 y 多抬 16px→0(ease-out;tilePos 不動 ⇒ 點得到的位置不變);drawSeats 副露最後一組外圈黃框 700ms 淡出(用同一份 tilePos 算包圍盒 ⇒ 對家旋轉座位也對)。
+  版號:config.js VERSION 與 sw.js CACHE 一起 v0.6.1→v0.7.0(smoke ★ 那條守)。smoke 248/248。
+  部署:`npx wrangler pages deploy . --project-name=majiang-zhuo --branch=main --commit-dirty=true`;線上 sw majiang-v0.7.0、renderer/game 新字串都在。
+  ⚠ verify-ui(需瀏覽器)本輪未跑。
+
 ★★★ 本輪(2026-09-02)★段 —— 下一手先看這裡 ★★★
 
 【已完成:M5 上線前的四件事(**部署還沒做,見下面「待使用者拍板」**)】
