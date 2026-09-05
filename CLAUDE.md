@@ -19,7 +19,7 @@ repo https://github.com/summer09201017-cloud/majiang-zhuo(公開)
 | **M5 上線** | 畫布寬度自適應、鎖橫向三件組、PNG 圖示、存檔續玩、CF Pages | ✅ 已上線 |
 
 **⚠ 這不是教會遊戲系列的一員**(同 `zhipai-zhuo` 紙牌桌 / `dianzhu-tai` 彈珠檯慣例):
-個人/家庭懷舊系,不進大廳、不進 sites.json、不接統計 beacon、不放經文、不做分齡。
+個人/家庭懷舊系,不進大廳、不放經文、不做分齡;**0905 起接統計 beacon + 進 sites.json**(使用者拍板:所有作品一律接統計,家庭系不例外;三層打點住 index.html,`-done` 在 table.js 的 finishHand / finishWashout)。
 **只計台/分,不做籌碼與下注。**
 
 驗收:`node scripts/smoke.mjs`(純邏輯)+ `node scripts/verify-ui.mjs`(真瀏覽器;

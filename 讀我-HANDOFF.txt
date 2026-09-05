@@ -13,7 +13,7 @@
   線上驗收    : LIVE_URL=https://majiang-zhuo.pages.dev/ node scripts/verify-ui.mjs
 
   ⚠ 這不是教會遊戲系列的一員(同紙牌桌 zhipai-zhuo / 彈珠檯 dianzhu-tai 慣例):
-    個人/家庭懷舊系,不進大廳、不進 sites.json、不接統計 beacon、不放經文、不做分齡。
+    個人/家庭懷舊系,不進大廳、不放經文、不做分齡;**0905 起接統計 beacon + 進 sites.json**(使用者拍板:所有作品一律接統計,家庭系不例外;三層打點住 index.html,`-done` 在 table.js 的 finishHand / finishWashout)。
     只計台/分,不做籌碼與下注。
 
 ■ 怎麼跑 / 怎麼驗

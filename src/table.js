@@ -299,6 +299,8 @@ function applySelf(G, seat, choice) {
 // 底 10 分 + 每台 5 分。自摸三家各付一份;放炮由放炮者一家付。
 // 一炮多響時放炮者付給每一家各一份(所以放炮給兩家 = 付兩份)。
 const payFor = (tai) => SCORE.base + tai * SCORE.perTai
+// 📡 完賽 beacon:一局結束(胡 / 自摸 / 流局)= 一次 -done。打點函式住在 index.html;smoke 與 balance 在 node 跑、沒有 window ⇒ 直接跳過。
+const psDoneSafe = () => { try { if (typeof window !== 'undefined' && window.psDone) window.psDone() } catch (e) { /* 統計是配菜 */ } }
 
 function winCtx(G, seat, win, selfDraw, flags) {
   return {
@@ -343,8 +345,9 @@ function doSelfWin(G, seat) {
   return true
 }
 
-function finishHand(G, result) { G.result = result; G.phase = 'win'; G.react = null }
+function finishHand(G, result) { G.result = result; G.phase = 'win'; G.react = null; psDoneSafe() }
 function finishWashout(G) {
+  psDoneSafe()
   G.result = { winners: [], from: -1, selfDraw: false, washout: true, tile: null }
   G.react = null
 }

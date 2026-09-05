@@ -1,6 +1,6 @@
 // ★ CACHE 版號要和 src/config.js 的 VERSION 同步 bump(smoke 在守)。
 // ★ CORE 少列一個 src 檔 = 離線時整個遊戲白畫面(smoke 也在守)。
-const CACHE = 'majiang-v0.6.0'
+const CACHE = 'majiang-v0.6.1'
 const CORE = [
   './',
   'index.html',

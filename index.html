@@ -43,6 +43,36 @@
 <script src="src/renderer.js"></script>
 <script src="src/input.js"></script>
 <script>
+  // 📡 統計打點三層(skill play-stats-lite / play-stats-dwell)。2026-09-05 使用者拍板:所有作品一律接統計,不再有「家庭系不接」的例外。
+  //    零個資:只送「站 id + 事件(+秒數)」,沒有 cookie、沒有帳號、不記 IP。離線 / 被擋 / 本機預覽一律靜默 —— 統計是配菜,壞掉絕不影響遊戲。
+  //    ★ 端點只有 /api/ping、秒數參數只認 t(0903 三站打到 404 一天多沒人發現的教訓;寫錯不會報錯,資料只會靜靜消失)。
+  //    ★ 黑名單不白名單:只擋本機開發,搬站(pages.dev ↔ workers.dev)不會斷流(0813 約拿白名單斷流三週的教訓)。
+  (function () {
+    var ID = 'majiang-zhuo'
+    var API = 'https://hfpc-play-stats.summer09201017.workers.dev/api/ping?g='
+    var LOCAL = ['localhost', '127.0.0.1', '::1', ''].indexOf(location.hostname) >= 0 || location.protocol === 'file:'
+    window.psPing = function (evt, sec) {   // evt 例:ID(開啟)/ ID-done(完賽)/ ID-dwell(停留,帶秒)
+      if (LOCAL) return
+      try {
+        var u = API + evt + (sec ? '&t=' + Math.round(sec) : '')
+        if (navigator.sendBeacon) navigator.sendBeacon(u)
+        else fetch(u, { mode: 'no-cors', keepalive: true }).catch(function () {})
+      } catch (e) { /* 統計是配菜:不重試、不報錯 */ }
+    }
+    window.psDone = function () { window.psPing(ID + '-done') }   // ② 完賽:遊戲碼在「一局分出結果」那一刻呼叫
+    window.psPing(ID)                                             // ① 開啟
+    var t0 = Date.now(), sent = false
+    function dwell () {                                           // ③ 真實停留:開頁到第一次離開,只發一次(遊戲語意,3~1800 秒才算)
+      if (sent) return
+      sent = true
+      var sec = (Date.now() - t0) / 1000
+      if (sec >= 3 && sec <= 1800) window.psPing(ID + '-dwell', sec)
+    }
+    addEventListener('pagehide', dwell)
+    addEventListener('visibilitychange', function () { if (document.visibilityState === 'hidden') dwell() })
+  })()
+</script>
+<script>
 // SW:localhost 一律 unregister(dev 快取雷,紙牌桌/彈珠檯老規矩);線上才註冊
 if ('serviceWorker' in navigator) {
   const local = location.hostname === 'localhost' || location.hostname === '127.0.0.1'
