@@ -25,6 +25,20 @@
     align-items: center; justify-content: center; padding: 24px }
   @media (orientation: portrait) { #rotate { display: flex } canvas { visibility: hidden } }
 </style>
+<style id="mfsStyle">
+/* mfs-landscape-fullscreen v1 —— 勿手改;要改請改 skills/force-landscape-pwa/patches/add-landscape-fullscreen.mjs 後重打 */
+#mfsRotate,#mfsFull{display:none}
+
+@media (pointer:coarse){
+  /* 進了全螢幕就自己藏起來(body.mfs-fs)⇒ 真正在玩的時候不會壓到遊戲 HUD */
+  body:not(.mfs-fs) #mfsFull{position:fixed;display:flex;align-items:center;justify-content:center;
+    top:calc(8px + env(safe-area-inset-top));right:calc(8px + env(safe-area-inset-right));
+    z-index:2147482000;width:42px;height:42px;padding:0;border-radius:11px;
+    border:1px solid rgba(255,255,255,.42);background:rgba(9,15,19,.55);color:#fff;
+    cursor:pointer;opacity:.5;-webkit-backdrop-filter:blur(3px);backdrop-filter:blur(3px)}
+  body:not(.mfs-fs) #mfsFull:hover,body:not(.mfs-fs) #mfsFull:focus-visible{opacity:1}
+}
+</style>
 </head>
 <body>
 <canvas id="cv"></canvas>
@@ -115,6 +129,50 @@ game.boot()
 //    (0901 第一次驗收就在 waitForFunction(() => window.renderer) 卡住 8 秒 —— 那是驗法的錯,不是遊戲的錯)。
 window.__game = game
 window.__renderer = renderer
+</script>
+<!-- mfs-landscape-fullscreen v1 -->
+
+<button type="button" id="mfsFull" title="全螢幕" aria-label="全螢幕"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" focusable="false"><path d="M3 9V3h6M21 9V3h-6M3 15v6h6M21 15v6h-6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+<script>
+/* mfs-landscape-fullscreen v1 */
+(function () {
+  try {
+    var root = document.documentElement;
+    /* 被嵌進別的頁面當關卡時,宿主已經是全螢幕:不蓋提示、不放鈕、不搶全螢幕,
+       否則會接管整頁(見 skill 的「嵌入模式不要再請求」)。 */
+    if (window.self !== window.top) {
+      var r = document.getElementById('mfsRotate'), f = document.getElementById('mfsFull');
+      if (r) r.remove(); if (f) f.remove();
+      return;
+    }
+    var req = root.requestFullscreen || root.webkitRequestFullscreen || root.webkitRequestFullScreen || null;
+    var isFs = function () { return !!(document.fullscreenElement || document.webkitFullscreenElement); };
+    var coarse = function () {
+      try { return !!(window.matchMedia && matchMedia('(pointer:coarse)').matches); } catch (e) { return false; }
+    };
+    function lockLandscape() {
+      /* 鎖向必須在全螢幕生效之後,多數瀏覽器才受理 */
+      try { var so = screen.orientation; if (so && so.lock) { var p = so.lock('landscape'); if (p && p.catch) p.catch(function () {}); } } catch (e) {}
+    }
+    function enter() {
+      if (!coarse()) return;   /* 桌機/投影不打擾:那邊按 F11 就好 */
+      try {
+        if (req && !isFs()) {
+          var p = req.call(root);
+          if (p && p.then) p.then(lockLandscape).catch(function () {}); else lockLandscape();
+        } else lockLandscape();
+      } catch (e) { /* iOS Safari 不支援網頁全螢幕:安靜跳過,不能炸遊戲 */ }
+    }
+    function sync() { try { document.body.classList.toggle('mfs-fs', isFs()); } catch (e) {} }
+    var b = document.getElementById('mfsFull'); if (b) b.addEventListener('click', enter);
+    var g = document.getElementById('mfsGo'); if (g) g.addEventListener('click', enter);
+    ['fullscreenchange', 'webkitfullscreenchange'].forEach(function (ev) { document.addEventListener(ev, sync); });
+    sync();
+    /* 已經橫著拿的人看不到蓋版提示 ⇒ 用「第一次觸控」試一次(全螢幕請求必須在使用者手勢裡)。
+       capture 但不 preventDefault:遊戲自己的手勢照樣收得到這一下。 */
+    window.addEventListener('pointerdown', enter, { once: true, capture: true });
+  } catch (e) {}
+})();
 </script>
 </body>
 </html>

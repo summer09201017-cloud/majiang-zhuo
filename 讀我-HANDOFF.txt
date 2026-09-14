@@ -1,6 +1,14 @@
 ================================================================================
-麻將桌(majiang-zhuo)— 交接說明          最後更新:2026-09-02(第六輪)
+麻將桌(majiang-zhuo)— 交接說明          最後更新:2026-09-14(第七輪:⛶ 全螢幕鈕)
 ================================================================================
+
+■ ★ 2026-09-14 第七輪(agape250 機・Fable 5.1;全艦隊棋類/桌遊手機全螢幕體檢)
+  ⛶ 補「手機全螢幕鈕」:本站原本只有 ①直向轉橫提示 ②第一次觸控自動試 requestFullscreen,**沒有可見的 ⛶**——
+  自動那一次失敗(iOS / 被拒)之後使用者就沒有任何入口。用艦隊補丁
+  `node ~/.claude/skills/force-landscape-pwa/patches/add-landscape-fullscreen.mjs . --no-hint`(半套模式:沿用既有轉向提示,
+  只補 #mfsFull 鈕 + 手勢鎖向),sw majiang-v0.7.0 → v0.7.1,src/config.js VERSION 同步 v0.7.1(牌桌角落印的版號)。
+  真瀏覽器 844×390(觸控)驗過:⛶ 在右上角 42px、按下去 fullscreenElement=true、鈕自己藏起來;smoke 248/248 綠。
+  部署:`npx wrangler pages deploy . --project-name=majiang-zhuo --branch=main --commit-dirty=true`。
 
 ■ 這是什麼
   台灣 16 張麻將,一人 vs 三家電腦。純前端 PWA,零相依、無建置步驟
