@@ -151,3 +151,9 @@ scripts/make-icons.mjs 從 icon.svg 產 PNG 圖示(只有改了 icon.svg 才要�
    桌機與 iOS 都會拒絕,被拒絕不可以讓遊戲壞掉。只在觸控裝置自動試一次。
 40. **手牌寬由 `LAY.HAND_W` 決定**(隨畫布寬度變),不要再讀 `CONFIG.TILE.HAND.W`:17 張要排進 960 邏輯寬。手機橫向實體寬因此只有 ~41px(<44 觸控門檻),
    在 config 裡再加寬只會把牌擠出畫布 —— 真正的解是 M5 的「邏輯畫布寬度自適應」。
+
+## v0.7.2(2026-09-15)拔掉「index.html 進 SW 快取名單」地雷(全艦隊修)
+
+- **做了什麼**:`sw.js` CORE 拔掉 `index.html`(只認根)、`addAll` → 逐一 `add().catch()`、runtime 只存 `ok && !redirected` 的回應、離線退路只給導覽請求退回 `./`;sw `majiang-v0.7.1` → `majiang-v0.7.2`,`src/config.js` VERSION 同步。
+- **為什麼**:Cloudflare Pages 把 `/index.html` 308 轉到 `/`;名單裡有它,install 存到的是 redirected 回應,裝成 App 從主畫面打開就 ERR_FAILED(3D-Chess 幻影版 0914 實機踩到),而且每次 bump 重踩。
+- **補丁來源 / 驗法**:skills repo `static-pwa-ship/patches/patch-sw-index.mjs --cf`;線上 `static-pwa-ship/scripts/check-sw-nav-fleet.mjs <url>` 九項要全綠。

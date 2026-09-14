@@ -1342,7 +1342,10 @@ const srcFiles = ['config', 'tiles', 'rules/hu', 'rules/shanten', 'rules/meld', 
   'table', 'ai', 'sfx', 'confetti', 'game', 'renderer', 'input'].map((f) => 'src/' + f + '.js')
 const missSw = srcFiles.filter((f) => !swTxt.includes(f))
 check('★ sw.js 的 CORE 涵蓋所有 src 檔(少一個 = 離線白畫面)', missSw.length === 0, missSw.join(','))
-const assets = ['index.html', 'manifest.webmanifest', 'icon.svg', 'icon-180.png', 'icon-192.png', 'icon-512.png']
+const assets = ['manifest.webmanifest', 'icon.svg', 'icon-180.png', 'icon-192.png', 'icon-512.png']
+// ★ 0915 全艦隊修:CORE 不可以有 index.html —— CF Pages 把 /index.html 308 到 /,快取到 redirected 回應,裝成 App 開就 ERR_FAILED
+const coreBlk = (swTxt.match(/const CORE = \[([\s\S]*?)\]/) || ['', ''])[1]
+check('★ sw.js 的 CORE 不含 index.html(只認 ./)', coreBlk.length > 0 && !/index\.html/.test(coreBlk))
 check('★ sw.js 的 CORE 也涵蓋圖示與 manifest', assets.every((f) => swTxt.includes(f)),
   assets.filter((f) => !swTxt.includes(f)).join(','))
 check('★ PNG 圖示真的存在(iOS 主畫面不吃 SVG)', (() => {
